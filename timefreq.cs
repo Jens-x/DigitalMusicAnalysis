@@ -68,17 +68,23 @@ namespace DigitalMusicAnalysis
                 Y[ll] = new float[2 * (int)Math.Floor((double)N / (double)wSamp)];
             }
             
-            Complex[] temp = new Complex[wSamp];
+            //consider this data dependancy consider moving it over to the for loop so that you are creting a new instance as well. 
             Complex[] tempFFT = new Complex[wSamp];
+
+            //there was a data dependancy here because each thread was writing to temp, which was a global variable,
+            //so if you put this in the for loop. then you are able to create an new instance of temp for each iteration.
+            //Therefore this entire block of code can be parallelized. 
 
             for (ii = 0; ii < 2 * Math.Floor((double)N / (double)wSamp) - 1; ii++)
             {
-
+                Complex[] temp = new Complex[wSamp];
+                // generates the entire temp array
                 for (jj = 0; jj < wSamp; jj++)  // Store data for a single part
                 {
                     temp[jj] = x[ii * (wSamp / 2) + jj];
                 }
 
+                // uses the entire temp array
                 tempFFT = fft(temp);    // Perform short term FT 
 
                 for (kk = 0; kk < wSamp / 2; kk++)
